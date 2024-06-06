@@ -33,30 +33,42 @@ https.get('https://coderbyte.com/api/challenges/json/json-cleaning', (resp) => {
 
     function cleanData(obj){
         let itemsRemoved = 0;
-        for(const key in obj){
-            // check if obj has key as property
-            if(obj.hasOwnProperty(key)){
-                // check if the value of the key is an array
-                if(Array.isArray(obj[key])){
-                    const initialLength = obj[key].length;
-                    // apply filter to get an array without the unwanted values
-                    obj[key] = obj[key].filter(item => item !== 'N/A' && item !== '-' && item !== '');
-                    itemsRemoved += initialLength - obj[key].length;
-                }else if(typeof obj[key] === 'object'){
-                    cleanData(obj[key]);
-                    if(Object.keys(obj[key]).length === 0){
-                        delete obj[key];
-                        itemsRemoved++;
-                    }
-                }else{
-                    if(obj[key] === 'N/A' || obj[key] === '-' || obj[key] === ''){
-                        delete obj[key];
-                        itemsRemoved++;
+
+        function clean(obj){
+            for(const key in obj){
+                if(obj.hasOwnProperty(key)){
+                    // if value is array - TEST 1
+                    if(Array.isArray(obj[key])){
+                        console.log('T1');
+                        const initialLength = obj[key].length;
+                        obj[key] = obj[key].filter(item => item !== 'N/A' && item !== '-' && item !== '');
+                        itemsRemoved += initialLength - obj[key].length;
+                        // if value is object - TEST - 2
+                    }else if(typeof obj[key] === 'object'){
+                        console.log('T2');
+                        clean(obj[key]);
+                        if(Object.keys(obj[key]).length === 0){
+                            console.log('deleted ', key, obj[key]);
+                            delete obj[key];
+                            itemsRemoved++;
+                        }
+                    }else{
+                        // if value is 'N/A' or '-' or '' - TEST 3
+                        if(obj[key] === 'N/A' || obj[key] === '-' || obj[key] === ''){
+                            console.log('T3');
+                            console.log('deleted ', key, obj[key]);
+                            delete obj[key];
+                            itemsRemoved++;
+                        }
                     }
                 }
             }
         }
+        clean(obj);
         obj.items_removed = itemsRemoved;
         return obj;
     }
 })
+
+
+
